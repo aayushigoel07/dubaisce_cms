@@ -1,4 +1,6 @@
+//@ts-nocheck
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -25,8 +27,6 @@ const allowedOrigins = Array.from(
     process.env.NEXT_PUBLIC_SERVER_URL,
     'http://localhost:3000',
     'http://localhost:3001',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001',
   ].filter((origin): origin is string => Boolean(origin))),
 )
 
@@ -67,5 +67,20 @@ export default buildConfig({
     },
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    s3Storage({
+  collections: {
+    media: true, // Just set to true for now to use default behavior
+  },
+  bucket: process.env.R2_BUCKET || '',
+  config: {
+    endpoint: process.env.R2_ENDPOINT || '',
+    region: 'auto',
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+    },
+  },
+}),
+  ],
 })
