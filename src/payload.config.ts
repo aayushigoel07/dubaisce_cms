@@ -21,6 +21,7 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const serverURL = process.env.NEXT_PUBLIC_SERVER_URL
 const frontendURL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:5173'
+const publicMediaUrl = process.env.R2_PUBLIC_URL
 const allowedOrigins = Array.from(
   new Set([
     frontendURL,
@@ -68,9 +69,9 @@ export default buildConfig({
   }),
   sharp,
   plugins: [
-    s3Storage({
+s3Storage({
   collections: {
-    media: true, // Just set to true for now to use default behavior
+    media: true,
   },
   bucket: process.env.R2_BUCKET || '',
   config: {
@@ -81,6 +82,11 @@ export default buildConfig({
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
     },
   },
+  generateFileURL: ({ filename, prefix }) => {
+    const baseURL = (publicMediaUrl || '').replace(/\/$/, '')
+    const key = prefix ? `${prefix}/${filename}` : filename
+    return `${baseURL}/${key}`
+  },
 }),
-  ],
+],
 })
