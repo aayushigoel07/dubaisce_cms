@@ -10,7 +10,6 @@ import './styles.css'
 export default async function HomePage() {
   const headers = await getHeaders()
   const payloadConfig = await config
-  console.log('DB URL:', process.env.DATABASE_URL)
   const payload = await getPayload({ config: payloadConfig })
   const { user } = await payload.auth({ headers })
 
