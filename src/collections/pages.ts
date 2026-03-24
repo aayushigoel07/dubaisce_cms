@@ -97,6 +97,25 @@ export const Pages: CollectionConfig = {
       required: true,
     },
     {
+      name: 'meta',
+      type: 'group',
+      label: 'SEO & Social Media',
+      fields: [
+        {
+          name: 'title',
+          type: 'text',
+          localized: true, // Helpful if you want different titles for /en and /ar
+          admin: { description: 'The title seen in search engines. Ideally < 60 chars.' },
+        },
+        {
+          name: 'description',
+          type: 'textarea',
+          localized: true,
+          admin: { description: 'The summary seen in search results. Ideally < 160 chars.' },
+        },
+      ],
+    },
+    {
       name: 'parent',
       type: 'relationship',
       relationTo: 'all-pages',
