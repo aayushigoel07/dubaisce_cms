@@ -71,7 +71,12 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
+      max: 1,                  // critical for serverless: 1 connection per function instance
+      idleTimeoutMillis: 10000, // release idle connections quickly
+      connectionTimeoutMillis: 5000,
     },
+    // Supabase transaction-mode pooler (port 6543) requires this
+    disableCreateDatabase: true,
   }),
   sharp,
   plugins: [
@@ -87,12 +92,6 @@ s3Storage({
       accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
     },
-  },
-  generateFileURL: ({ filename, prefix }) => {
-    const baseURL = (publicMediaUrl || '').replace(/\/$/, '')
-    const key = prefix ? `${prefix}/${filename}` : filename
-    if (baseURL) return `${baseURL}/${key}`
-    return serverURL ? `${serverURL}/api/media/file/${filename}` : `/api/media/file/${filename}`
   },
 }),
 ],
