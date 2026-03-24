@@ -17,8 +17,7 @@ export const Media: CollectionConfig = {
   hooks: {
     afterRead: [
       ({ doc }) => {
-        // The base URL of your R2 public bucket/worker
-        const baseUrl = 'https://dubaisce.etihadesco.workers.dev/media'
+          const baseUrl = (process.env.NEXT_PUBLIC_S3_PUBLIC_URL || '').replace(/\/$/, '')
         
         // Update the main URL
         if (doc.filename) {
@@ -42,7 +41,7 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
-      localized: true,
+      required: true,
     },
   ],
 }
