@@ -184,6 +184,16 @@ export interface Media {
 export interface AllPage {
   id: number;
   title: string;
+  meta?: {
+    /**
+     * The title seen in search engines. Ideally < 60 chars.
+     */
+    title?: string | null;
+    /**
+     * The summary seen in search results. Ideally < 160 chars.
+     */
+    description?: string | null;
+  };
   /**
    * Select a parent page to nest this page under (e.g., About > What We Do)
    */
@@ -917,6 +927,12 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface AllPagesSelect<T extends boolean = true> {
   title?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
   parent?: T;
   slug?: T;
   fullPath?: T;
