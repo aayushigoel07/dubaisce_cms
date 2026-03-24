@@ -71,11 +71,10 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
-      max: 1,                  // critical for serverless: 1 connection per function instance
-      idleTimeoutMillis: 10000, // release idle connections quickly
-      connectionTimeoutMillis: 5000,
+      max: 1,
+      idleTimeoutMillis: 10000,
+      connectionTimeoutMillis: 30000,
     },
-    // Supabase transaction-mode pooler (port 6543) requires this
     disableCreateDatabase: true,
   }),
   sharp,
