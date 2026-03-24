@@ -8,11 +8,6 @@ export const Media: CollectionConfig = {
   },
   upload: {
     staticDir: 'media',
-    imageSizes: [
-      {
-        name: 'hero',
-      },
-    ],
   },
   hooks: {
     afterRead: [
