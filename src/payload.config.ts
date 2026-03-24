@@ -19,14 +19,19 @@ import { Header } from './globals/SIteHeader'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-const serverURL = process.env.NEXT_PUBLIC_SERVER_URL
+const serverURL =
+  process.env.NEXT_PUBLIC_SERVER_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined)
 const frontendURL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:5173'
 const publicMediaUrl =
   process.env.NEXT_PUBLIC_S3_PUBLIC_URL 
 const allowedOrigins = Array.from(
   new Set([
     frontendURL,
+    process.env.NEXT_PUBLIC_S3_PUBLIC_URL,
     process.env.NEXT_PUBLIC_SERVER_URL,
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
+    'https://dubaisce.etihadesco.workers.dev',
     'http://localhost:3000',
     'http://localhost:3001',
   ].filter((origin): origin is string => Boolean(origin))),
@@ -86,7 +91,8 @@ s3Storage({
   generateFileURL: ({ filename, prefix }) => {
     const baseURL = (publicMediaUrl || '').replace(/\/$/, '')
     const key = prefix ? `${prefix}/${filename}` : filename
-    return baseURL ? `${baseURL}/${key}` : `${serverURL}/api/media/file/${filename}`
+    if (baseURL) return `${baseURL}/${key}`
+    return serverURL ? `${serverURL}/api/media/file/${filename}` : `/api/media/file/${filename}`
   },
 }),
 ],
