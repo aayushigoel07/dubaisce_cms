@@ -23,7 +23,17 @@ const serverURL =
   process.env.NEXT_PUBLIC_SERVER_URL ||
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined)
 const frontendURL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:5173'
-const r2Endpoint = process.env.R2_ENDPOINT || ''
+const requiredR2Env = ['R2_BUCKET', 'R2_ENDPOINT', 'R2_ACCESS_KEY_ID', 'R2_SECRET_ACCESS_KEY'] as const
+const missingR2Env = requiredR2Env.filter((key) => !process.env[key])
+
+if (missingR2Env.length > 0) {
+  throw new Error(`Missing required R2 environment variables: ${missingR2Env.join(', ')}`)
+}
+
+const r2Bucket = process.env.R2_BUCKET
+const r2Endpoint = process.env.R2_ENDPOINT
+const r2AccessKeyId = process.env.R2_ACCESS_KEY_ID
+const r2SecretAccessKey = process.env.R2_SECRET_ACCESS_KEY
 const allowedOrigins = Array.from(
   new Set([
     frontendURL,
@@ -84,14 +94,14 @@ s3Storage({
   collections: {
     media: true,
   },
-  bucket: process.env.R2_BUCKET || '',
+  bucket: r2Bucket,
   config: {
     endpoint: r2Endpoint,
     region: 'auto',
     forcePathStyle: true,
     credentials: {
-      accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
-      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+      accessKeyId: r2AccessKeyId,
+      secretAccessKey: r2SecretAccessKey,
     },
   },
 }),
