@@ -84,7 +84,6 @@ s3Storage({
   collections: {
     media: true,
   },
-  clientUploads: true,
   bucket: process.env.R2_BUCKET || '',
   config: {
     endpoint: r2Endpoint,
