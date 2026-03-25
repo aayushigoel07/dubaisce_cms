@@ -12,18 +12,28 @@ export const Media: CollectionConfig = {
   hooks: {
     afterRead: [
       ({ doc }) => {
-          const baseUrl = (process.env.NEXT_PUBLIC_S3_PUBLIC_URL || '').replace(/\/$/, '')
-        
-        // Update the main URL
-        if (doc.filename) {
-          doc.url = `${baseUrl}/${doc.filename}`
+        const baseUrl = (process.env.NEXT_PUBLIC_S3_PUBLIC_URL || '').replace(/\/$/, '')
+
+        if (!baseUrl) {
+          return doc
         }
 
-        // Update URLs for the different sizes (like 'hero')
+        const withPrefix = (filename: string) => {
+          const filePrefix = doc.prefix ? `${doc.prefix}/` : ''
+          return `${baseUrl}/${filePrefix}${filename}`
+        }
+
+        // Keep URLs aligned with the object key written by storage-s3.
+        if (doc.filename) {
+          doc.url = withPrefix(doc.filename)
+        }
+
         if (doc.sizes) {
           Object.keys(doc.sizes).forEach((size) => {
-            if (doc.sizes[size].filename) {
-              doc.sizes[size].url = `${baseUrl}/${doc.sizes[size].filename}`
+            const sizeDoc = doc.sizes[size]
+
+            if (sizeDoc?.filename) {
+              sizeDoc.url = withPrefix(sizeDoc.filename)
             }
           })
         }

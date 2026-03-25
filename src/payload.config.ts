@@ -23,8 +23,7 @@ const serverURL =
   process.env.NEXT_PUBLIC_SERVER_URL ||
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined)
 const frontendURL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:5173'
-const publicMediaUrl =
-  process.env.NEXT_PUBLIC_S3_PUBLIC_URL 
+const r2Endpoint = process.env.R2_ENDPOINT || ''
 const allowedOrigins = Array.from(
   new Set([
     frontendURL,
@@ -83,12 +82,16 @@ export default buildConfig({
   plugins: [
 s3Storage({
   collections: {
-    media: true,
+    media: {
+      prefix: 'media',
+    },
   },
+  clientUploads: true,
   bucket: process.env.R2_BUCKET || '',
   config: {
-    endpoint: process.env.R2_ENDPOINT || '',
+    endpoint: r2Endpoint,
     region: 'auto',
+    forcePathStyle: true,
     credentials: {
       accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
