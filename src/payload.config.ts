@@ -82,9 +82,7 @@ export default buildConfig({
   plugins: [
 s3Storage({
   collections: {
-    media: {
-      prefix: 'media',
-    },
+    media: true,
   },
   clientUploads: true,
   bucket: process.env.R2_BUCKET || '',
