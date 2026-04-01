@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { flattenContent } from '../search/flatten';
 
 export const News: CollectionConfig = {
   slug: 'news',
@@ -15,6 +16,38 @@ export const News: CollectionConfig = {
     read: () => true,
   },
   hooks: {
+    beforeChange: [
+    ({ data }) => {
+      const searchableContent = {
+        title: data.title,
+        date: data.date,
+        shortDescription: data.shortDescription,
+      };
+
+      // ✅ flatten full content
+      const fullText = flattenContent(searchableContent).toLowerCase();
+
+      // ✅ chunk helper (you can define above or import)
+      const chunkText = (text: string, size = 10000) => {
+        const chunks = [];
+
+        for (let i = 0; i < text.length; i += size) {
+          const chunk = text.slice(i, i + size).trim();
+
+          if (chunk.length > 0) {
+            chunks.push({ text: chunk });
+          }
+        }
+
+        return chunks;
+      };
+
+      // ✅ store chunks instead of one big string
+      data.searchIndex = chunkText(fullText);
+
+      return data;
+    },
+  ],
     beforeValidate: [
       async ({ data, operation, req, originalDoc }) => {
         if (!data) return data
@@ -73,6 +106,21 @@ export const News: CollectionConfig = {
     ],
   },
   fields: [
+    {
+  name: 'searchIndex',
+  type: 'array',
+  localized: true,
+  admin: {
+    hidden: true,
+  },
+  fields: [
+    {
+      name: 'text',
+      type: 'textarea',
+      maxLength: 10000, // each chunk safe
+    },
+  ],
+},
     {
       name: 'title',
       type: 'text',

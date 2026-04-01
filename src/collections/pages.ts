@@ -19,6 +19,7 @@ import { DsmResourcesBlock } from '@/blocks/dsmResources'
 import { TextImageLinkBlock } from '@/blocks/textImageLink'
 import { TaqatiBlock } from '@/blocks/taqatiBlock'
 import { PlainTextBlock } from '@/blocks/plainText'
+import { flattenContent } from '../search/flatten';
 
 export const Pages: CollectionConfig = {
   slug: 'all-pages',
@@ -34,34 +35,68 @@ export const Pages: CollectionConfig = {
     read: () => true,
   },
   hooks: {
-    beforeValidate: [
-      async ({ data, operation, req }) => {
-        if (operation === 'create' || operation === 'update') {
-          // Generate slug from title (English version)
-          if (data?.title) {
-            const titleText =
-              typeof data.title === 'object' && data.title.en
-                ? data.title.en
-                : typeof data.title === 'string'
-                  ? data.title
-                  : ''
+    beforeChange: [
+    ({ data }) => {
+      const searchableContent = {
+        title: data.title,
+        layout: data.layout,
+      };
 
+      // ✅ flatten full content
+      const fullText = flattenContent(searchableContent).toLowerCase();
+
+      // ✅ chunk helper (you can define above or import)
+      const chunkText = (text: string, size = 10000) => {
+        const chunks = [];
+
+        for (let i = 0; i < text.length; i += size) {
+          const chunk = text.slice(i, i + size).trim();
+
+          if (chunk.length > 0) {
+            chunks.push({ text: chunk });
+          }
+        }
+
+        return chunks;
+      };
+
+      // ✅ store chunks instead of one big string
+      data.searchIndex = chunkText(fullText);
+
+      return data;
+    },
+  ],
+    beforeValidate: [
+      async ({ data, operation, req, originalDoc }) => {
+        if (operation === 'create' || operation === 'update') {
+          const isEnglishLocale = req.locale === 'en' || !req.locale
+
+          if (isEnglishLocale && data?.title && typeof data.title === 'string') {
             // Special case: Home page gets "/" slug
-            if (titleText.toLowerCase() === 'home') {
+            if (data.title.toLowerCase() === 'home') {
               data.slug = '/'
               data.fullPath = '/'
               return data
             }
 
             // Create slug: lowercase, remove special chars, replace spaces with hyphens
-            const generatedSlug = titleText
+            const generatedSlug = data.title
               .toLowerCase()
-              .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+              .replace(/[^a-z0-9\s-]/g, '')
               .trim()
-              .replace(/\s+/g, '-') // Replace spaces with hyphens
-              .replace(/-+/g, '-') // Replace multiple hyphens with single
+              .replace(/\s+/g, '-')
+              .replace(/-+/g, '-')
 
-            data.slug = generatedSlug
+            if (generatedSlug) {
+              data.slug = generatedSlug
+            } else if (originalDoc?.slug) {
+              data.slug = originalDoc.slug
+            }
+          } else if (!isEnglishLocale) {
+            // Non-English locale: preserve existing slug
+            if (originalDoc?.slug) {
+              data.slug = originalDoc.slug
+            }
           }
 
           // Build full path with parent slugs
@@ -90,6 +125,21 @@ export const Pages: CollectionConfig = {
     ],
   },
   fields: [
+    {
+  name: 'searchIndex',
+  type: 'array',
+  localized: true,
+  admin: {
+    hidden: true,
+  },
+  fields: [
+    {
+      name: 'text',
+      type: 'textarea',
+      maxLength: 10000, // each chunk safe
+    },
+  ],
+},
     {
       name: 'title',
       type: 'text',

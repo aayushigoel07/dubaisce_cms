@@ -183,6 +183,12 @@ export interface Media {
  */
 export interface AllPage {
   id: number;
+  searchIndex?:
+    | {
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   title: string;
   meta?: {
     /**
@@ -691,6 +697,12 @@ export interface AllPage {
  */
 export interface News {
   id: number;
+  searchIndex?:
+    | {
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   title?: string | null;
   date?: string | null;
   /**
@@ -733,6 +745,12 @@ export interface News {
  */
 export interface Card {
   id: number;
+  searchIndex?:
+    | {
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Title for this card. Used to generate the slug.
    */
@@ -926,6 +944,12 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "all-pages_select".
  */
 export interface AllPagesSelect<T extends boolean = true> {
+  searchIndex?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
   title?: T;
   meta?:
     | T
@@ -1189,6 +1213,12 @@ export interface AllPagesSelect<T extends boolean = true> {
  * via the `definition` "cards_select".
  */
 export interface CardsSelect<T extends boolean = true> {
+  searchIndex?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
   title?: T;
   image?: T;
   shortDescription?: T;
@@ -1205,6 +1235,12 @@ export interface CardsSelect<T extends boolean = true> {
  * via the `definition` "news_select".
  */
 export interface NewsSelect<T extends boolean = true> {
+  searchIndex?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
   title?: T;
   date?: T;
   parentPage?: T;

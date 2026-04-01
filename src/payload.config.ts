@@ -16,6 +16,7 @@ import { News } from './collections/News'
 import { SubFooter } from './globals/SubFooter'
 import { SiteFooter } from './globals/SiteFooter'
 import { Header } from './globals/SIteHeader'
+import { searchEndpoint } from './search/searchEndpoint';
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -72,6 +73,7 @@ export default buildConfig({
     Translations,
   ],
    globals: [SubFooter, SiteFooter, Header],
+   endpoints: [searchEndpoint],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
