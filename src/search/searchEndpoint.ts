@@ -73,6 +73,7 @@ export const searchEndpoint: Endpoint = {
               results.push({
                 id: doc.id,
                 title,
+                fullPath: doc.fullPath ?? doc.slug,
                 collection,
                 score,
                 locale: detectedLocale,
@@ -85,6 +86,7 @@ export const searchEndpoint: Endpoint = {
                 id: doc.id,
                 title,
                 slug: doc.slug,
+                fullPath: doc.fullPath ?? doc.slug,
                 collection,
                 score,
                 locale: detectedLocale,
